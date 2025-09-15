@@ -1,0 +1,97 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f3f4f6; /* light gray */
+}
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header bar */
+.header {
+  background: #facc15; /* yellow */
+  color: black;
+  padding: 1rem;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Title */
+.title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+/* Form controls */
+.form-control {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-control label {
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.form-control input {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+/* Button */
+.btn {
+  width: 100%;
+  padding: 0.7rem;
+  background: #3b82f6; /* blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn:hover {
+  background: #2563eb; /* darker blue */
+}
+
+/* Alert */
+.alert {
+  background: #fee2e2; /* light red */
+  color: #b91c1c; /* dark red */
+  padding: 0.7rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Switch section */
+.switch {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.95rem;
+}
