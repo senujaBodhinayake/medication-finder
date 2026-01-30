@@ -140,7 +140,7 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                sh "docker build -t ${DOCKERHUB_USER}/${BACKEND_IMAGE}:latest ./backend"
+                sh "docker build -t $DOCKERHUB_USER/$BACKEND_IMAGE:latest ./backend"
             }
         }
 
@@ -148,9 +148,9 @@ pipeline {
             steps {
                 sh """
                 docker build \
-                  --build-arg VITE_API_URL=http://${SERVER_IP}:5000 \
-                  -t ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:latest \
-                  ./medication-availability-finder
+                --build-arg VITE_API_URL=http://$SERVER_IP:5000 \
+                -t $DOCKERHUB_USER/$FRONTEND_IMAGE:latest \
+                ./medication-availability-finder
                 """
             }
         }
@@ -162,12 +162,13 @@ pipeline {
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
-                    sh """
-                      echo "$PASS" | docker login -u "$USER" --password-stdin
-                      docker push ${DOCKERHUB_USER}/${BACKEND_IMAGE}:latest
-                      docker push ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:latest
-                      docker logout
-                    """
+
+                    sh '''
+                    echo $PASS | docker login -u $USER --password-stdin
+                    docker push $DOCKERHUB_USER/$BACKEND_IMAGE:latest
+                    docker push $DOCKERHUB_USER/$FRONTEND_IMAGE:latest
+                    docker logout
+                    '''
                 }
             }
         }
@@ -176,18 +177,18 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(
                     credentialsId: 'ec2-ssh-key',
-                    keyFileVariable: 'SSH_KEY',
-                    usernameVariable: 'SSH_USER'
+                    keyFileVariable: 'KEYFILE',
+                    usernameVariable: 'SSHUSER'
                 )]) {
-                    sh """
-                      ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
-                      cd ~/medfinder
-                      docker compose pull
-                      docker compose down
-                      docker compose up -d
-                      docker ps
-                      EOF
-                    """
+
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no -i $KEYFILE $SSHUSER@$SERVER_IP << EOF
+                        cd ~/medfinder
+                        docker compose pull
+                        docker compose down
+                        docker compose up -d
+                    EOF
+                    '''
                 }
             }
         }
@@ -202,4 +203,3 @@ pipeline {
         }
     }
 }
-
