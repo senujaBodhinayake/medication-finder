@@ -174,18 +174,22 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-            steps {
-                sh """
-                ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP << EOF
+    steps {
+        withCredentials([sshUserPrivateKey(
+            credentialsId: 'ec2-ssh-key',
+            keyFileVariable: 'SSH_KEY',
+            usernameVariable: 'SSH_USER'
+        )]) {
+            sh """
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << EOF
 
-                cd ~/medfinder
+            cd ~/medfinder
+            docker compose pull
+            docker compose down
+            docker compose up -d
 
-                docker compose pull
-                docker compose down
-                docker compose up -d
-
-                EOF
-                """
+            EOF
+            """
             }
         }
     }
