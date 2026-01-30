@@ -174,24 +174,24 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-            steps {
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: 'ec2-ssh-key',
-                    keyFileVariable: 'KEYFILE',
-                    usernameVariable: 'SSHUSER'
-                )]) {
-
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no -i $KEYFILE $SSHUSER@$SERVER_IP << EOF
-                        cd ~/medfinder
-                        docker compose pull
-                        docker compose down
-                        docker compose up -d
-                    EOF
-                    '''
-                }
-            }
+    steps {
+        withCredentials([sshUserPrivateKey(
+            credentialsId: 'ec2-ssh-key',
+            keyFileVariable: 'SSH_KEY',
+            usernameVariable: 'SSH_USER'
+        )]) {
+            sh """
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP '
+                cd ~/medfinder
+                docker compose pull
+                docker compose down
+                docker compose up -d
+            '
+            """
         }
+    }
+}
+
     }
 
     post {
