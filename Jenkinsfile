@@ -124,88 +124,78 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER   = "senujabodhinayake"
-        BACKEND_IMAGE    = "mdf-backend"
-        FRONTEND_IMAGE   = "mdf-medication-availability-finder"
-
-        // ✅ Your backend public URL for frontend build
-        // Later replace with domain or nginx /api
-        VITE_API_URL     = "http://13.201.65.214:5000"
-
-        // ✅ EC2 deploy target
-        EC2_HOST         = "13.201.65.214"
-        EC2_APP_DIR      = "~/medfinder"
+        DOCKERHUB_USER = "senujabodhinayake"
+        BACKEND_IMAGE = "mdf-backend"
+        FRONTEND_IMAGE = "mdf-medication-availability-finder"
+        SERVER_IP = "13.201.65.214"
     }
 
     stages {
-        stage('Checkout Repository') {
+
+        stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/senujaBodhinayake/medication-finder.git'
             }
         }
 
-        stage('Build Backend Image') {
+        stage('Build Backend') {
             steps {
-                sh "docker build -t ${DOCKERHUB_USER}/${BACKEND_IMAGE}:latest ./backend"
+                sh "docker build -t $DOCKERHUB_USER/$BACKEND_IMAGE:latest ./backend"
             }
         }
 
-        stage('Build Frontend Image (Production)') {
+        stage('Build Frontend') {
             steps {
-                // Builds Vite -> dist, then nginx serves on port 80
                 sh """
-                  docker build \
-                    -t ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:latest \
-                    --build-arg VITE_API_URL=${VITE_API_URL} \
-                    ./medication-availability-finder
+                docker build \
+                --build-arg VITE_API_URL=http://$SERVER_IP:5000 \
+                -t $DOCKERHUB_USER/$FRONTEND_IMAGE:latest \
+                ./medication-availability-finder
                 """
             }
         }
 
-        stage('Push Images to Docker Hub') {
+        stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'DOCKERHUB_USER_CRED',
-                    passwordVariable: 'DOCKERHUB_PASS_CRED'
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
                 )]) {
-                    sh """
-                      echo "$DOCKERHUB_PASS_CRED" | docker login -u "$DOCKERHUB_USER_CRED" --password-stdin
-                      docker push ${DOCKERHUB_USER}/${BACKEND_IMAGE}:latest
-                      docker push ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:latest
-                      docker logout
-                    """
+
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+
+                    sh "docker push $DOCKERHUB_USER/$BACKEND_IMAGE:latest"
+                    sh "docker push $DOCKERHUB_USER/$FRONTEND_IMAGE:latest"
+
+                    sh "docker logout"
                 }
             }
         }
 
         stage('Deploy to EC2') {
             steps {
-                // Requires: Jenkins plugin "SSH Agent" and credential id 'ec2-ssh-key'
-                sshagent(credentials: ['ec2-ssh-key']) {
-                    sh """
-                      ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} '
-                        cd ${EC2_APP_DIR} &&
-                        docker compose pull &&
-                        docker compose up -d &&
-                        docker ps
-                      '
-                    """
-                }
+                sh """
+                ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP << EOF
+
+                cd ~/medfinder
+
+                docker compose pull
+                docker compose down
+                docker compose up -d
+
+                EOF
+                """
             }
         }
     }
 
     post {
         success {
-            echo "✅ Built, pushed, and deployed successfully!"
+            echo "✅ CI/CD Pipeline Completed Successfully!"
         }
         failure {
-            echo "❌ Pipeline failed. Check Jenkins console logs."
-        }
-        always {
-            // Clean workspace images (optional). Keeps Jenkins node clean.
-            sh "docker image prune -f || true"
+            echo "❌ Pipeline Failed!"
         }
     }
 }
