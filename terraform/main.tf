@@ -46,7 +46,7 @@ resource "aws_security_group" "medfinder_sg" {
   }
 }
 
-# ✅ Ubuntu 22.04 AMI for ap-south-1
+#  Ubuntu 22.04 AMI for ap-south-1
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical

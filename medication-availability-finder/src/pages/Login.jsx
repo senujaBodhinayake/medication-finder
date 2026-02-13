@@ -165,7 +165,7 @@ const Login = () => {
         <div className="flex flex-col items-center mb-6">
           <Activity size={36} className="text-emerald-600 mb-2" />
           <h1 className="text-2xl font-bold text-gray-800">
-            MedFinder
+            Senuja
           </h1>
           <p className="text-sm text-gray-500">
             {isRegister
