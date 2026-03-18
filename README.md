@@ -74,3 +74,17 @@ Run locally:
 
 ```bash
 docker-compose up --build
+
+## 📸 Screenshots
+
+### Application UI
+![App UI](screenshots/app_ui.png)
+
+### Docker Containers
+![Docker](screenshots/docker-containers.png)
+
+### Jenkins Pipeline
+![Jenkins](screenshots/jenkins-build.png)
+
+### EC2 Instance
+![EC2](screenshots/instance.png)
