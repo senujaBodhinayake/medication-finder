@@ -7,7 +7,7 @@ pipeline {
         DOCKERHUB_USER = "senujabodhinayake"
         BACKEND_IMAGE = "mdf-backend"
         FRONTEND_IMAGE = "mdf-medication-availability-finder"
-        SERVER_IP = "13.201.65.214"
+        SERVER_IP = "13.201.121.178"
     }
 
     stages {
